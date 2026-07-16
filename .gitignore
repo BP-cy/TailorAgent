@@ -1,0 +1,69 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+/src/test
+
+/.agents
+/.codex
+/.codegraph
+/docs
+/data
+/dist
+/kb-skills
+/knowledge
+/index
+/media
+/memory
+/skills
+/workspace
+/solution
+app-config.json
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Frontend (Vue/Vite) ###
+frontend/node_modules/
+frontend/dist/
+# 前端构建产物会输出到此处，不纳入版本控制
+src/main/resources/static/
+
+### JCEF 开发期解压的原生二进制 ###
+jcef-bundle/
+
+### 开发期编辑器上传的图片（打包后写到 %LOCALAPPDATA%）###
+media/
+
+
+### 本地 SQLite 数据库（运行期生成，不入库）###
+data/*.db
+data/*.db-wal
+data/*.db-shm

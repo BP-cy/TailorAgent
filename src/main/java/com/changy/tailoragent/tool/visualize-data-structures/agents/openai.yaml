@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Structure Visualizer"
+  short_description: "Render algorithm data structures and states"
+  default_prompt: "Use $visualize-data-structures to render the requested algorithm data structure as a clear image."

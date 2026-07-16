@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.changy.tailoragent.chat.mapper.ChatSessionMapper">
+
+    <resultMap id="chatSessionMap" type="com.changy.tailoragent.chat.entity.ChatSession">
+        <id     property="id"        column="id"/>
+        <result property="title"     column="title"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="chatSessionMap">
+        SELECT id, title, created_at, updated_at
+        FROM chat_session
+        ORDER BY updated_at DESC
+    </select>
+
+    <select id="findById" resultMap="chatSessionMap">
+        SELECT id, title, created_at, updated_at
+        FROM chat_session
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_session (title, created_at, updated_at)
+        VALUES (#{title}, #{createdAt}, #{updatedAt})
+    </insert>
+
+    <update id="touchUpdatedAt">
+        UPDATE chat_session
+        SET updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM chat_session WHERE id = #{id}
+    </delete>
+
+</mapper>

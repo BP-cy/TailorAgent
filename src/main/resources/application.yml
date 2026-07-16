@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: TailorAgent
+  servlet:
+    multipart:
+      # 编辑器图片上传 + 知识库文件导入体积上限（知识库要收 ppt/xlsx 且支持批量多文件，故放宽）
+      max-file-size: 100MB
+      max-request-size: 500MB
+  autoconfigure:
+    exclude:
+      # 禁用 Spring AI OpenAI 自动配置（项目自行管理 ChatClient 工厂 + JSON 持久化）
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
+      # MCP 客户端自动配置禁用（项目编程式管理 MCP 连接生命周期）
+      - org.springframework.ai.mcp.client.common.autoconfigure.McpClientAutoConfiguration
+      - org.springframework.ai.mcp.client.common.autoconfigure.McpToolCallbackAutoConfiguration
+      - org.springframework.ai.mcp.client.common.autoconfigure.StdioTransportAutoConfiguration
+      - org.springframework.ai.mcp.client.common.autoconfigure.annotations.McpClientAnnotationScannerAutoConfiguration
+      - org.springframework.ai.mcp.client.httpclient.autoconfigure.StreamableHttpHttpClientTransportAutoConfiguration
+      - org.springframework.ai.mcp.client.httpclient.autoconfigure.SseHttpClientTransportAutoConfiguration
+      # DataSource 由 DataSourceConfig 编程式创建（路径依赖 AppPaths 运行时逻辑）
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerAutoConfiguration
+      # MyBatis 全程手动配置
+      - org.mybatis.spring.boot.autoconfigure.MybatisLanguageDriverAutoConfiguration
+      - org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
+
+# 桌面应用：后端只监听本机回环地址，杜绝局域网/外部访问
+server:
+  address: 127.0.0.1
+  # 端口设为 0，由系统分配空闲端口，避免与其它程序冲突
+  port: 0
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+logging:
+  level:
+    com.changy.tailoragent: DEBUG
+
+
+# Markdown 父子章节切块与混合检索参数。统一放在这里，切块器和检索器不再各自硬编码。
+knowledge:
+  indexing:
+    chunk-target-chars: 800
+    chunk-max-chars: 1200
+    chunk-overlap-chars: 100
+    section-max-return-chars: 4000
+    total-context-max-chars: 12000
+    max-results: 8

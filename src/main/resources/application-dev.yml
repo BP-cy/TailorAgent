@@ -1,0 +1,13 @@
+# 开发联调专用配置：固定端口 8080，配合前端 Vite 的 /api 代理
+# 启动方式：mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+server:
+  port: 8080
+## Spring AI OpenAI（开发测试用，请替换为你的 API Key）
+#spring:
+#  ai:
+#    openai:
+#      api-key: ${OPENAI_API_KEY:your-api-key-here}
+#      chat:
+#        options:
+#          model: gpt-4.1-mini

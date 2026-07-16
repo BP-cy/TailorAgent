@@ -1,0 +1,46 @@
+{
+  "name": "tailoragent-frontend",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/manrope": "^5.2.8",
+
+    "@shikijs/markdown-it": "^1.24.0",
+    "@tailwindcss/typography": "^0.5.20",
+    "@tiptap/extension-code-block": "^3.26.1",
+    "@tiptap/extension-image": "^3.26.1",
+    "@tiptap/extension-table": "^3.26.1",
+    "@tiptap/starter-kit": "^3.26.1",
+    "@tiptap/vue-3": "^3.26.1",
+    "markdown-it": "^14.1.0",
+    "marked": "^18.0.5",
+    "material-symbols": "^0.45.1",
+    "mermaid": "^11.15.0",
+
+    "pinia": "^2.2.6",
+    "shiki": "^1.24.0",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.1",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^22.10.0",
+    "@types/turndown": "^5.0.5",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "tailwindcss": "^4.3.1",
+    "typescript": "~5.6.3",
+    "vite": "^6.0.3",
+    "vue-tsc": "^2.1.10"
+  }
+}

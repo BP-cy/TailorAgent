@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.Changy</groupId>
+    <artifactId>TailorAgent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>TailorAgent</name>
+    <description>TailorAgent</description>
+    <url/>
+    <licenses>
+        <license/>
+    </licenses>
+    <developers>
+        <developer/>
+    </developers>
+    <scm>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
+    </scm>
+    <properties>
+        <java.version>21</java.version>
+        <!-- 覆盖 Spring Boot 管理的版本，修复 GHSA-j288-q9x7-2f5v (Uncontrolled Recursion) -->
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <!-- JCEF 原生二进制版本：与 jcefmaven 143.0.14 内嵌的 cef-143.0.14 对应（命名方案不同，需用完整字符串） -->
+        <jcef.natives.version>jcef-cffac27+cef-143.0.14+gdd46a37+chromium-143.0.7499.193</jcef.natives.version>
+        <!-- Lucene 10.x 要求 Java 21，与项目运行时版本一致。 -->
+        <lucene.version>10.2.2</lucene.version>
+        <commonmark.version>0.24.0</commonmark.version>
+        <!-- 设为 true 可在构建时跳过前端(node/npm)构建，便于后端单独迭代 -->
+        <frontend.skip>false</frontend.skip>
+        <!-- 日常构建默认跳过测试；需要验证时用 -DskipTests=false 覆盖。 -->
+        <skipTests>true</skipTests>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 嵌入 Chromium -->
+        <dependency>
+            <groupId>me.friwi</groupId>
+            <artifactId>jcefmaven</artifactId>
+            <version>143.0.14</version>
+        </dependency>
+
+        <!-- Windows x64 原生 Chromium 二进制:随包携带,首次启动从 classpath 解压,无需联网下载 -->
+        <dependency>
+            <groupId>me.friwi</groupId>
+            <artifactId>jcef-natives-windows-amd64</artifactId>
+            <version>${jcef.natives.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Spring AI：OpenAI 大模型对话 -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+        </dependency>
+
+        <!-- MCP 客户端：编程式管理外部 MCP 服务连接（自动配置已在 application.yml 中排除） -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
+        </dependency>
+
+        <!-- Jakarta Validation（Spring Boot 4.x 需显式引入） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- JDBC（MyBatis 依赖，同时提供 JdbcTemplate 基础能力） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- MyBatis Spring Boot Starter -->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+
+        <!-- SQLite JDBC 驱动 -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.49.1.0</version>
+        </dependency>
+
+        <!-- 进程内知识库索引：同一索引承载 BM25 文本字段和 KNN 向量字段。 -->
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analysis-common</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analysis-smartcn</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+
+        <!-- Markdown AST：标题识别必须避开 fenced code 中的 #，并保留原文字符偏移。 -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>${commonmark.version}</version>
+        </dependency>
+
+        <!-- JNA：调用 Win32 Job Object（KILL_ON_JOB_CLOSE），保证应用被强杀/崩溃时子进程随之清理。
+             JDK 21 的 FFM 仍是 preview，故用 JNA 实现。jna-platform 传递引入 jna 核心。 -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.14.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>2.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- 数据结构可视化原本以 SKILL 形式放在源码树中；其三个 Python 脚本作为工具资源打进 jar。 -->
+            <resource>
+                <directory>src/main/java/com/changy/tailoragent/tool/visualize-data-structures/scripts</directory>
+                <targetPath>tools/visualize-data-structures</targetPath>
+                <includes>
+                    <include>*.py</include>
+                </includes>
+            </resource>
+            <!-- 知识编辑 Agent 的内置 Skill：catalog 常驻，正文由 skill 工具按需加载。 -->
+            <resource>
+                <directory>src/main/java/com/changy/tailoragent/tool/visualize-data-structures</directory>
+                <targetPath>tools/visualize-data-structures</targetPath>
+                <includes>
+                    <include>SKILL.md</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- 默认跳过测试（桌面应用启动慢，日常迭代不需要跑测试）。
+                 需要时手动指定：mvn test -DskipTests=false 或 mvn package -DskipTests=false -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                </configuration>
+            </plugin>
+
+            <!-- 构建期自动:安装 node/npm → npm install → npm run build。
+                 Vite 的 build.outDir 直接输出到 src/main/resources/static，随后被打进 jar。
+                 后端单独迭代时用 -Dfrontend.skip=true 跳过。 -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>1.15.1</version>
+                <configuration>
+                    <workingDirectory>frontend</workingDirectory>
+                    <installDirectory>target</installDirectory>
+                    <skip>${frontend.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <nodeVersion>v22.11.0</nodeVersion>
+                            <!-- 用国内镜像下载 node，nodejs.org 在国内常常很慢/连不上。
+                                 注意 npmmirror 会 302 跳到 cdn.npmmirror.com（部分网络 DNS 解析不了），
+                                 这里用华为云镜像，直连提供文件、不跳转。 -->
+                            <nodeDownloadRoot>https://mirrors.huaweicloud.com/nodejs/</nodeDownloadRoot>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-build</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>aot</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>process-aot</id>
+                                <goals>
+                                    <goal>process-aot</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

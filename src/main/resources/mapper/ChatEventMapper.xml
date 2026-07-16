@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.changy.tailoragent.chat.mapper.ChatEventMapper">
+
+    <resultMap id="chatEventMap" type="com.changy.tailoragent.chat.entity.ChatEvent">
+        <id     property="id"        column="id"/>
+        <result property="turnId"    column="turn_id"/>
+        <result property="sessionId" column="session_id"/>
+        <result property="seq"       column="seq"/>
+        <result property="role"      column="role"/>
+        <result property="type"      column="type"/>
+        <result property="content"   column="content"/>
+        <result property="payload"   column="payload"/>
+        <result property="status"    column="status"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_event
+            (turn_id, session_id, seq, role, type, content, payload, status, created_at)
+        VALUES
+            (#{turnId}, #{sessionId}, #{seq}, #{role}, #{type}, #{content}, #{payload}, #{status}, #{createdAt})
+    </insert>
+
+    <!-- 整会话事件流:唯一定序键是自增 id -->
+    <select id="findBySession" resultMap="chatEventMap">
+        SELECT id, turn_id, session_id, seq, role, type, content, payload, status, created_at
+        FROM chat_event
+        WHERE session_id = #{sessionId}
+        ORDER BY id ASC
+    </select>
+
+    <select id="countByTurn" resultType="int">
+        SELECT COUNT(*) FROM chat_event WHERE turn_id = #{turnId}
+    </select>
+
+    <delete id="deleteByTurn">
+        DELETE FROM chat_event WHERE turn_id = #{turnId}
+    </delete>
+
+    <delete id="deleteBySession">
+        DELETE FROM chat_event WHERE session_id = #{sessionId}
+    </delete>
+
+</mapper>

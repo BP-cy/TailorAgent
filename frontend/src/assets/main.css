@@ -1,0 +1,57 @@
+/*
+ * Tailwind 4 —— 全应用统一使用。
+ *
+ * 已移除 TDesign，全面改用 Tailwind 风格组件，因此引入完整的 tailwindcss
+ * （含 preflight 全局 reset），由它统一接管原生 <button>/<input> 等基础样式。
+ */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* 从旧项目移植的 Material Design 令牌（颜色/字体），生成 bg-*, text-*, font-* 等工具类 */
+@theme {
+  --color-primary: #0051ae;
+  --color-primary-container: #0969da;
+  --color-secondary: #485e8a;
+  --color-tertiary: #913900;
+  --color-on-primary: #ffffff;
+  --color-surface: #f7f9ff;
+  --color-surface-container: #ebeef3;
+  --color-surface-container-low: #f1f4f9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e5e8ee;
+  --color-surface-container-highest: #dfe3e9;
+  --color-on-surface: #181c20;
+  --color-on-surface-variant: #424753;
+  --color-on-background: #181c20;
+  --color-outline-variant: #c2c6d6;
+
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/*
+ * 移植组件的 scoped <style> 里用的是 --font-family-* 这套旧命名，
+ * Tailwind v4 的 @theme 只会生成 --font-* 令牌，这里补一份别名保证能解析。
+ */
+:root {
+  --font-family-headline: "Manrope", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+}
+
+/* 全局基础排版：preflight 会清空默认字体，这里补回项目正文字体 */
+body {
+  font-family: var(--font-body);
+  color: var(--color-on-surface);
+}
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* Material Symbols 图标基础设置（字体本身由 main.ts 自托管引入，不走 CDN） */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
