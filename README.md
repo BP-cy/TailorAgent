@@ -26,6 +26,8 @@ TailorAgent 提供两种安装和使用方式。
 
 首次启动时，应用需要将内置的 JCEF Chromium native 文件解压到本地数据目录，因此可能比后续启动稍慢。
 
+> 安装包内置启动加速（CDS 类数据共享）：首次启动会在安装目录生成共享缓存，第二次启动起加载缓存，启动速度明显提升。该缓存要求安装目录可写，若安装到 Program Files 等只读目录则无法生成，但应用功能不受影响。
+
 > 模型配置和 API Key 只会保存在本机的 `%LOCALAPPDATA%\TailorAgent\app-config.json`。该文件包含敏感配置，请勿分享或上传到公开仓库。
 
 ### 方式二：下载源码并自行打包
@@ -77,6 +79,14 @@ dist\
 ```
 
 `app-image` 不需要 WiX Toolset。生成 MSI 时，`package.bat` 会使用 `%JAVA_HOME%\bin\jpackage.exe`，请确保 `JAVA_HOME` 指向 JDK 21。
+
+构建者还可以在打包前执行 CDS 训练验证：
+
+```bat
+.\package.bat cds-train
+```
+
+该命令以与安装包相同的 JVM 参数启动一次应用，Spring 上下文就绪后自动退出，并在 `target\cds-train\` 生成共享归档；它不产生安装包。安装包内的启动缓存由用户安装后的首次启动自动生成，因此训练产物不需要随包分发。
 
 ## 项目功能介绍
 

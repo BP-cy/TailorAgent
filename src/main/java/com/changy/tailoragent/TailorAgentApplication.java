@@ -22,13 +22,20 @@ public class TailorAgentApplication {
 
         // 在后台线程并行初始化 JCEF（解压原生二进制 + 加载 Chromium），
         // 与 Spring Boot 启动同时进行，启动耗时 = max(Spring, JCEF) 而非两者之和。
-        ExecutorService jcefExecutor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "jcef-init");
-            t.setDaemon(false);
-            return t;
-        });
-        Future<CefApp> cefFuture = jcefExecutor.submit(JcefSetup::createCefApp);
-        jcefExecutor.shutdown(); // 不再接受新任务，线程在 createCefApp 完成后自行结束
+        // 打包训练（CDS 训练运行）时用 -Dtailoragent.skip-jcef=true 跳过 JCEF，
+        // 避免在打包机上拉起 Chromium 进程；此时仅启动 Spring 上下文后退出。
+        boolean skipJcef = Boolean.getBoolean("tailoragent.skip-jcef");
+        ExecutorService jcefExecutor = null;
+        Future<CefApp> cefFuture = null;
+        if (!skipJcef) {
+            jcefExecutor = Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "jcef-init");
+                t.setDaemon(false);
+                return t;
+            });
+            cefFuture = jcefExecutor.submit(JcefSetup::createCefApp);
+            jcefExecutor.shutdown(); // 不再接受新任务，线程在 createCefApp 完成后自行结束
+        }
 
         // Spring Boot 在主线程启动（阻塞至就绪）
         ConfigurableApplicationContext ctx = app.run(args);
@@ -37,6 +44,12 @@ public class TailorAgentApplication {
         Integer port = ctx.getEnvironment().getProperty("local.server.port", Integer.class);
         if (port == null) {
             throw new IllegalStateException("无法获取内嵌服务器端口，JCEF 窗口无法加载页面");
+        }
+
+        // 仅训练运行：不等待 JCEF、不创建窗口。通常 -Dspring.context.exit=onRefresh
+        // 已在 context 刷新完成后触发 System.exit，此处作为兜底。
+        if (skipJcef) {
+            return;
         }
 
         // 等待 JCEF 初始化完成（若 Spring 启动较慢，此处几乎无需等待）
